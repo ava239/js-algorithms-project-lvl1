@@ -5,15 +5,16 @@ class SearchEngine {
 
   process() {
     this.docs = this.docs.map((doc) => {
-      const words = doc.text.split(' ');
-      return { ...doc, words };
+      const tokens = doc.text.split(' ');
+      const terms = tokens.reduce((acc, token) => [...acc, ...token.match(/\w+/g)], []);
+      return { ...doc, tokens, terms };
     });
   }
 
   search(needle) {
     this.process();
     return this.docs
-      .filter(({ words }) => words.includes(needle))
+      .filter(({ terms }) => terms.includes(needle))
       .map(({ id }) => id);
   }
 }
