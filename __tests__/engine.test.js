@@ -15,7 +15,7 @@ test('docs', () => {
 
   const searchEngine = buildSearchEngine(docs);
 
-  expect(searchEngine.search('shoot')).toEqual(['doc1', 'doc2']);
+  expect(searchEngine.search('shoot')).toEqual(['doc2', 'doc1']);
   expect(searchEngine.search('pint')).toEqual(['doc1']);
   expect(searchEngine.search('pint!')).toEqual(['doc1']);
 });

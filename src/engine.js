@@ -15,6 +15,12 @@ const buildSearchEngine = (docs) => ({
     const { terms: searchTerms } = processText(needle);
     return processedDocs
       .filter(({ terms }) => _.intersection(terms, searchTerms).length === searchTerms.length)
+      .map((doc) => {
+        const { terms } = doc;
+        const relevancy = terms.filter((term) => searchTerms.includes(term)).length;
+        return { ...doc, relevancy };
+      })
+      .sort((a, b) => b.relevancy - a.relevancy)
       .map(({ id }) => id);
   },
 });
