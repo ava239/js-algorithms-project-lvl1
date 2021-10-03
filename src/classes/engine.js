@@ -5,8 +5,8 @@ class SearchEngine {
 
   process() {
     this.docs = this.docs.map((doc) => {
-      doc.words = doc.text.split(' ');
-      return doc;
+      const words = doc.text.split(' ');
+      return { ...doc, words };
     });
   }
 
