@@ -14,13 +14,20 @@ const buildSearchEngine = (docs) => ({
     const processedDocs = processCollection(docs);
     const { terms: searchTerms } = processText(needle);
     return processedDocs
-      .filter(({ terms }) => _.intersection(terms, searchTerms).length === searchTerms.length)
       .map((doc) => {
         const { terms } = doc;
-        const relevancy = terms.filter((term) => searchTerms.includes(term)).length;
-        return { ...doc, relevancy };
+        const matchesCount = terms.filter((term) => searchTerms.includes(term)).length;
+        const wordsFound = _.intersection(terms, searchTerms).length;
+        return { ...doc, matchesCount, wordsFound };
       })
-      .sort((a, b) => b.relevancy - a.relevancy)
+      .filter(({ wordsFound }) => wordsFound > 0)
+      .sort((a, b) => {
+        const wordsDiff = b.wordsFound - a.wordsFound;
+        if (wordsDiff !== 0) {
+          return wordsDiff;
+        }
+        return b.matchesCount - a.matchesCount;
+      })
       .map(({ id }) => id);
   },
 });
