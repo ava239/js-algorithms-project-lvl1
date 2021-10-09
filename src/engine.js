@@ -1,5 +1,4 @@
 // @ts-check
-import _ from 'lodash';
 
 const processText = (text) => {
   const tokens = text.split(' ');
@@ -28,14 +27,14 @@ const buildSearchEngine = (docs) => {
       const { terms: searchTerms } = processText(needle);
       return searchEngine.docs
         .map((doc) => {
-          const { terms } = doc;
-          const matchesCount = terms.filter((term) => searchTerms.includes(term)).length;
-          const wordsFound = _.intersection(terms, searchTerms).length;
+          const { id, terms } = doc;
+          const wordsFound = searchTerms.filter((term) => searchEngine.reverseIndex[term].includes(id));
+          const matchesCount = terms.filter((term) => wordsFound.includes(term)).length;
           return { ...doc, matchesCount, wordsFound };
         })
-        .filter(({ wordsFound }) => wordsFound > 0)
+        .filter(({ wordsFound }) => wordsFound.length > 0)
         .sort((a, b) => {
-          const wordsDiff = b.wordsFound - a.wordsFound;
+          const wordsDiff = b.wordsFound.length - a.wordsFound.length;
           if (wordsDiff !== 0) {
             return wordsDiff;
           }
