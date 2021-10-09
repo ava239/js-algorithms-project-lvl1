@@ -21,12 +21,8 @@ test('terms search', () => {
   expect(searchEngine.search('pint!')).toEqual(['doc1']);
 });
 
-test('relevancy order', () => {
-  expect(searchEngine.search('shoot')).toEqual(['doc2', 'doc1', 'doc4']);
-});
-
-test('non-exact search', () => {
-  expect(searchEngine.search('shoot me')).toEqual(['doc2', 'doc4', 'doc1']);
+test('tf-idf relevancy', () => {
+  expect(searchEngine.search('shoot me')).toEqual(['doc4', 'doc2', 'doc1']);
 });
 
 test('reverse index', () => {

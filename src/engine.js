@@ -19,31 +19,50 @@ const generateReverseIndex = (docs) => {
   }, {});
 };
 
+const calculateTF = ({ terms }, word) => {
+  const matchedTermsCount = terms.filter((term) => term === word).length;
+  return matchedTermsCount / terms.length;
+};
+
+const calculateIDF = (collectionLength, reverseIndex, word) => {
+  const docsWithWord = reverseIndex[word].length;
+  return Math.log(collectionLength / docsWithWord);
+};
+
 const buildSearchEngine = (docs) => {
   const engine = {
     reverseIndex: {},
     docs: [],
+    avgLength: 1,
     search: (needle) => {
       const { terms: searchTerms } = processText(needle);
-      return engine.docs
+      const weighedDocs = engine.docs
         .map((doc) => {
-          const { id, terms } = doc;
-          const wordsFound = searchTerms.filter((term) => engine.reverseIndex[term].includes(id));
-          const matchesCount = terms.filter((term) => wordsFound.includes(term)).length;
-          return { ...doc, matchesCount, wordsFound };
-        })
-        .filter(({ wordsFound }) => wordsFound.length > 0)
-        .sort((a, b) => {
-          const wordsDiff = b.wordsFound.length - a.wordsFound.length;
-          if (wordsDiff !== 0) {
-            return wordsDiff;
-          }
-          return b.matchesCount - a.matchesCount;
-        })
+          const { terms } = doc;
+          const weights = searchTerms.map((term) => {
+            const idf = calculateIDF(docs.length, engine.reverseIndex, term);
+            const tf = calculateTF(doc, term);
+            const k1 = 2;
+            const b = 0.75;
+            const tfNumer = tf * (k1 + 1);
+            const tfDenom = tf + k1 * (1 - b + (b * terms.length) / engine.avgLength);
+            const tfPart = tfNumer / tfDenom;
+            return idf * tfPart;
+          });
+          const weight = weights.reduce((acc, singleWeight) => acc + singleWeight, 0);
+          return { ...doc, weight };
+        });
+      return weighedDocs
+        .filter(({ weight }) => weight > 0)
+        .sort((a, b) => b.weight - a.weight)
         .map(({ id }) => id);
     },
   };
   engine.docs = processCollection(docs);
+  const sumLength = engine.docs
+    .map(({ terms }) => terms.length)
+    .reduce((acc, length) => acc + length, 0);
+  engine.avgLength = sumLength / engine.docs.length;
   engine.reverseIndex = generateReverseIndex(engine.docs);
   return engine;
 };
