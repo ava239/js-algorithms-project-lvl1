@@ -20,7 +20,7 @@ test('simple search', () => {
   expect(searchEngine.search('trash island')).toEqual(expected);
 });
 
-test('test with spam', () => {
+test('with spam', () => {
   const docIds = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki', 'garbage_patch_spam'];
   const docs = docIds.map((id) => ({ id, text: getFixture(id) }));
   const searchEngine = buildSearchEngine(docs);
@@ -29,7 +29,7 @@ test('test with spam', () => {
   expect(searchEngine.search('the trash island is a')).toEqual(expected);
 });
 
-test('test with empty', () => {
+test('empty', () => {
   const docIds = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki', 'garbage_patch_spam'];
   const docs = docIds.map((id) => ({ id, text: getFixture(id) }));
   const searchEngine = buildSearchEngine(docs);
@@ -37,4 +37,3 @@ test('test with empty', () => {
   const expected = [];
   expect(searchEngine.search('')).toEqual(expected);
 });
-
