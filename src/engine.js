@@ -1,7 +1,9 @@
 // @ts-check
 
 const processText = (text) => {
-  const tokens = text.split(' ');
+  const tokens = text
+    .split(' ')
+    .reduce((acc, part) => [...acc, ...part.split('\n')], []);
   const rawTerms = tokens.reduce((acc, token) => [...acc, ...token.match(/\w+/g) ?? []], []);
   const terms = rawTerms.map((term) => term.toLowerCase());
   return { tokens, terms };
@@ -34,29 +36,28 @@ const buildSearchEngine = (docs) => {
     reverseIndex: {},
     docs: [],
     avgLength: 1,
-    search: (needle) => {
-      const { terms: searchTerms } = processText(needle);
+    search: (query) => {
+      const { terms: searchTerms } = processText(query);
       const weighedDocs = engine.docs
         .map((doc) => {
-          const { terms } = doc;
+          const { terms, id } = doc;
           const weights = searchTerms.map((term) => {
-            const idf = calculateIDF(docs.length, engine.reverseIndex, term);
+            const idf = calculateIDF(engine.docs.length, engine.reverseIndex, term);
             const tf = calculateTF(doc, term);
-            const k1 = 2;
+            const k1 = 0;
             const b = 0.75;
             const tfNumer = tf * (k1 + 1);
-            const tfDenom = tf + k1 * (1 - b + (b * terms.length) / engine.avgLength);
+            const tfDenom = tf + k1 * (1 - b + b * (terms.length / engine.avgLength));
             const tfPart = tfNumer / tfDenom;
             return idf * tfPart;
           });
-          const weight = weights.reduce((acc, singleWeight) => acc + singleWeight, 0);
-          return { ...doc, weight };
-        });
-      console.log(needle);
-      return weighedDocs
-        .filter(({ weight }) => weight > 0)
-        .sort((a, b) => b.weight - a.weight)
-        .map(({ id }) => id);
+          const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
+          const wordsFound = searchTerms.filter((term) => engine.reverseIndex[term].includes(id));
+          return { id, totalWeight, wordsFound };
+        })
+        .filter(({ wordsFound }) => wordsFound.length > 0)
+        .sort((a, b) => b.totalWeight - a.totalWeight);
+      return weighedDocs.map(({ id }) => id);
     },
   };
   engine.docs = processCollection(docs);
