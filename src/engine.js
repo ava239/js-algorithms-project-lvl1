@@ -20,15 +20,15 @@ const generateReverseIndex = (docs) => {
 };
 
 const buildSearchEngine = (docs) => {
-  const searchEngine = {
+  const engine = {
     reverseIndex: {},
     docs: [],
     search: (needle) => {
       const { terms: searchTerms } = processText(needle);
-      return searchEngine.docs
+      return engine.docs
         .map((doc) => {
           const { id, terms } = doc;
-          const wordsFound = searchTerms.filter((term) => searchEngine.reverseIndex[term].includes(id));
+          const wordsFound = searchTerms.filter((term) => engine.reverseIndex[term].includes(id));
           const matchesCount = terms.filter((term) => wordsFound.includes(term)).length;
           return { ...doc, matchesCount, wordsFound };
         })
@@ -43,9 +43,9 @@ const buildSearchEngine = (docs) => {
         .map(({ id }) => id);
     },
   };
-  searchEngine.docs = processCollection(docs);
-  searchEngine.reverseIndex = generateReverseIndex(searchEngine.docs);
-  return searchEngine;
+  engine.docs = processCollection(docs);
+  engine.reverseIndex = generateReverseIndex(engine.docs);
+  return engine;
 };
 
 export default buildSearchEngine;
