@@ -27,9 +27,9 @@ const calculateTF = ({ terms }, word) => {
 };
 
 const calculateIDF = (collectionLength, reverseIndex, word) => {
-  const docsWithWord = reverseIndex[word].length;
-  const numer = collectionLength - docsWithWord + 0.5;
-  const denom = docsWithWord + 0.5;
+  const docsWithWord = reverseIndex[word] ?? [];
+  const numer = collectionLength - docsWithWord.length + 0.5;
+  const denom = docsWithWord.length + 0.5;
   const rational = numer / denom;
   return Math.log(rational + 1);
 };
@@ -51,7 +51,8 @@ const buildSearchEngine = (docs) => {
             return idf * tf;
           });
           const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
-          const wordsFound = searchTerms.filter((term) => engine.reverseIndex[term].includes(id));
+          const wordsFound = searchTerms
+            .filter((term) => engine.reverseIndex[term] && engine.reverseIndex[term].includes(id));
           return { id, totalWeight, wordsFound };
         })
         .filter(({ wordsFound }) => wordsFound.length > 0)
