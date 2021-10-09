@@ -28,7 +28,10 @@ const calculateTF = ({ terms }, word) => {
 
 const calculateIDF = (collectionLength, reverseIndex, word) => {
   const docsWithWord = reverseIndex[word].length;
-  return Math.log(collectionLength / docsWithWord);
+  const numer = collectionLength - docsWithWord + 0.5;
+  const denom = docsWithWord + 0.5;
+  const rational = numer / denom;
+  return Math.log(rational + 1);
 };
 
 const buildSearchEngine = (docs) => {
@@ -40,16 +43,11 @@ const buildSearchEngine = (docs) => {
       const { terms: searchTerms } = processText(query);
       const weighedDocs = engine.docs
         .map((doc) => {
-          const { terms, id } = doc;
+          const { id } = doc;
           const weights = searchTerms.map((term) => {
             const idf = calculateIDF(engine.docs.length, engine.reverseIndex, term);
             const tf = calculateTF(doc, term);
-            const k1 = 0;
-            const b = 0.75;
-            const tfNumer = tf * (k1 + 1);
-            const tfDenom = tf + k1 * (1 - b + b * (terms.length / engine.avgLength));
-            const tfPart = tfNumer / tfDenom;
-            return idf * tfPart;
+            return idf * tf;
           });
           const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
           const wordsFound = searchTerms.filter((term) => engine.reverseIndex[term].includes(id));
@@ -57,6 +55,8 @@ const buildSearchEngine = (docs) => {
         })
         .filter(({ wordsFound }) => wordsFound.length > 0)
         .sort((a, b) => b.totalWeight - a.totalWeight);
+      console.log(query);
+      console.log(weighedDocs);
       return weighedDocs.map(({ id }) => id);
     },
   };
