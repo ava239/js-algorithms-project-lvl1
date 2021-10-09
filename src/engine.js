@@ -38,12 +38,10 @@ const buildSearchEngine = (docs) => {
   const engine = {
     reverseIndex: {},
     docs: [],
-    avgLength: 1,
     search: (query) => {
       const { terms: searchTerms } = processText(query);
       const weighedDocs = engine.docs
         .map((doc) => {
-          const { id } = doc;
           const weights = searchTerms.map((term) => {
             const idf = calculateIDF(engine.docs.length, engine.reverseIndex, term);
             const tf = calculateTF(doc, term);
@@ -51,8 +49,8 @@ const buildSearchEngine = (docs) => {
           });
           const totalWeight = weights.reduce((acc, weight) => acc + weight, 0);
           const wordsFound = searchTerms
-            .filter((term) => engine.reverseIndex[term] && engine.reverseIndex[term].includes(id));
-          return { id, totalWeight, wordsFound };
+            .filter((term) => engine.reverseIndex[term]?.includes(doc.id));
+          return { id: doc.id, totalWeight, wordsFound };
         })
         .filter(({ wordsFound }) => wordsFound.length > 0)
         .sort((a, b) => b.totalWeight - a.totalWeight);
@@ -60,10 +58,6 @@ const buildSearchEngine = (docs) => {
     },
   };
   engine.docs = processCollection(docs);
-  const sumLength = engine.docs
-    .map(({ terms }) => terms.length)
-    .reduce((acc, length) => acc + length, 0);
-  engine.avgLength = sumLength / engine.docs.length;
   engine.reverseIndex = generateReverseIndex(engine.docs);
   return engine;
 };
