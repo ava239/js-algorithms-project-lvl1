@@ -28,3 +28,27 @@ test('relevancy order', () => {
 test('non-exact search', () => {
   expect(searchEngine.search('shoot me')).toEqual(['doc2', 'doc4', 'doc1']);
 });
+
+test('reverse index', () => {
+  const expectedIndex = {
+    i: ['doc1', 'doc3'],
+    can: ['doc1'],
+    t: ['doc1', 'doc2', 'doc4'],
+    shoot: ['doc1', 'doc2', 'doc4'],
+    straight: ['doc1'],
+    unless: ['doc1'],
+    ve: ['doc1'],
+    had: ['doc1'],
+    a: ['doc1'],
+    pint: ['doc1'],
+    don: ['doc2', 'doc4'],
+    that: ['doc2', 'doc4'],
+    thing: ['doc2', 'doc4'],
+    at: ['doc2', 'doc4'],
+    me: ['doc2', 'doc4'],
+    m: ['doc3'],
+    your: ['doc3'],
+    shooter: ['doc3'],
+  };
+  expect(searchEngine.reverseIndex).toEqual(expectedIndex);
+});
