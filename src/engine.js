@@ -52,6 +52,7 @@ const buildSearchEngine = (docs) => {
           const weight = weights.reduce((acc, singleWeight) => acc + singleWeight, 0);
           return { ...doc, weight };
         });
+      console.log(needle);
       return weighedDocs
         .filter(({ weight }) => weight > 0)
         .sort((a, b) => b.weight - a.weight)
