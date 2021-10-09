@@ -19,3 +19,22 @@ test('simple search', () => {
   const expected = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki'];
   expect(searchEngine.search('trash island')).toEqual(expected);
 });
+
+test('test with spam', () => {
+  const docIds = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki', 'garbage_patch_spam'];
+  const docs = docIds.map((id) => ({ id, text: getFixture(id) }));
+  const searchEngine = buildSearchEngine(docs);
+
+  const expected = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki', 'garbage_patch_spam'];
+  expect(searchEngine.search('the trash island is a')).toEqual(expected);
+});
+
+test('test with empty', () => {
+  const docIds = ['garbage_patch_NG', 'garbage_patch_ocean_clean', 'garbage_patch_wiki', 'garbage_patch_spam'];
+  const docs = docIds.map((id) => ({ id, text: getFixture(id) }));
+  const searchEngine = buildSearchEngine(docs);
+
+  const expected = [];
+  expect(searchEngine.search('')).toEqual(expected);
+});
+

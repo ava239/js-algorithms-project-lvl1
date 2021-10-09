@@ -41,6 +41,7 @@ const buildSearchEngine = (docs) => {
     avgLength: 1,
     search: (query) => {
       const { terms: searchTerms } = processText(query);
+      console.log(query);
       const weighedDocs = engine.docs
         .map((doc) => {
           const { id } = doc;
@@ -55,7 +56,6 @@ const buildSearchEngine = (docs) => {
         })
         .filter(({ wordsFound }) => wordsFound.length > 0)
         .sort((a, b) => b.totalWeight - a.totalWeight);
-      console.log(query);
       console.log(weighedDocs);
       return weighedDocs.map(({ id }) => id);
     },
